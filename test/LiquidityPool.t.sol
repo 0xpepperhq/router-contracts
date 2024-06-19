@@ -21,7 +21,7 @@ contract LiquidityPoolTest is Test {
         token1 = new TestToken("Token1", "TK1");
         token2 = new TestToken("Token2", "TK2");
         rewardToken = new TestToken("RewardToken", "PEPR");
-        liquidityPool = new LiquidityPool(token1, token2, rewardToken, 1e18, 1e18, "TK1TK2", "1"); // 1 reward token per second per token
+        liquidityPool = new LiquidityPool(token1, token2, rewardToken, 1e10, 1e10, "TK1TK2", "1"); // 1 reward token per second per token
 
         token1.approve(address(liquidityPool), 1000000 * 10 ** token1.decimals());
         token2.approve(address(liquidityPool), 1000000 * 10 ** token2.decimals());
@@ -71,10 +71,12 @@ contract LiquidityPoolTest is Test {
         // Simulate time passing
         vm.warp(block.timestamp + 1000); // Fast forward 1000 seconds
 
+        // deal(address(rewardToken), address(liquidityPool), 2000 * 1e18);
         uint256 initialRewardBalance = rewardToken.balanceOf(address(this));
         console.log("Initial reward balance: ", initialRewardBalance);
         liquidityPool.claimReward();
         uint256 finalRewardBalance = rewardToken.balanceOf(address(this));
+        console.log("Reward balance after claim: ", finalRewardBalance);
 
         assert(finalRewardBalance > initialRewardBalance);
     }
