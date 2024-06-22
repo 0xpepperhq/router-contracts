@@ -5,12 +5,73 @@ pragma abicoder v2;
 import {TransferHelper} from "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-contract UniswapV3Swap {
+contract PepperSwapV1 {
     ISwapRouter public immutable swapRouter;
     uint24 public constant poolFee = 3000;
 
     constructor(ISwapRouter _swapRouter) {
         swapRouter = _swapRouter;
+    }
+
+    function swapExactInputSingle(uint256 amountIn, address tokenIn, address tokenOut)
+        external
+        returns (uint256 amountOut)
+    {
+        // msg.sender must approve this contract
+
+        // Transfer the specified amount of tokenIn to this contract.
+        TransferHelper.safeTransferFrom(tokenIn, msg.sender, address(this), amountIn);
+
+        // Approve the router to spend tokenIn.
+        TransferHelper.safeApprove(tokenIn, address(swapRouter), amountIn);
+
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+            tokenIn: tokenIn,
+            tokenOut: tokenOut,
+            fee: poolFee,
+            recipient: msg.sender,
+            deadline: block.timestamp,
+            amountIn: amountIn,
+            // TODO - get the amountOutMinimum from an function argument
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+
+        // The call to `exactInputSingle` executes the swap.
+        amountOut = swapRouter.exactInputSingle(params);
+    }
+
+    function swapExactOutputSingle(uint256 amountOut, uint256 amountInMaximum, address tokenIn, address tokenOut)
+        external
+        returns (uint256 amountIn)
+    {
+        // Transfer the specified amount of DAI to this contract.
+        TransferHelper.safeTransferFrom(tokenIn, msg.sender, address(this), amountInMaximum);
+
+        // Approve the router to spend the specifed `amountInMaximum` of tokenIn.
+        // In production, you should choose the maximum amount to spend based on oracles or other data sources to acheive a better swap.
+        TransferHelper.safeApprove(tokenIn, address(swapRouter), amountInMaximum);
+
+        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter.ExactOutputSingleParams({
+            tokenIn: tokenIn,
+            tokenOut: tokenOut,
+            fee: poolFee,
+            recipient: msg.sender,
+            deadline: block.timestamp,
+            amountOut: amountOut,
+            amountInMaximum: amountInMaximum,
+            sqrtPriceLimitX96: 0
+        });
+
+        // Executes the swap returning the amountIn needed to spend to receive the desired amountOut.
+        amountIn = swapRouter.exactOutputSingle(params);
+
+        // For exact output swaps, the amountInMaximum may not have all been spent.
+        // If the actual amount spent (amountIn) is less than the specified maximum amount, we must refund the msg.sender and approve the swapRouter to spend 0.
+        if (amountIn < amountInMaximum) {
+            TransferHelper.safeApprove(tokenIn, address(swapRouter), 0);
+            TransferHelper.safeTransfer(tokenIn, msg.sender, amountInMaximum - amountIn);
+        }
     }
 
     function swapExactInputMultihop(uint256 amountIn, address[] calldata path) external returns (uint256 amountOut) {
