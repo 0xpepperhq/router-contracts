@@ -9,6 +9,6 @@ fs_permissions = [{ access = "read", path = "./out" }]
 viaIR = true
 
 [rpc_endpoints]
-beratest = "https://artio.rpc.berachain.com/"
+sepolia = "https://alpha-fittest-energy.ethereum-sepolia.quiknode.pro/ad2fa26d4fdae56c65fded4c4b8eadc7bd06778b/"
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
