@@ -5,12 +5,32 @@ pragma abicoder v2;
 import {TransferHelper} from "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-contract PepperSwapV1 {
+contract PepperSwapV1 is Ownable, ReentrancyGuard, Pausable {
     ISwapRouter public immutable swapRouter;
     uint24 public constant poolFee = 3000;
+    address public feeTo;
 
     constructor(ISwapRouter _swapRouter) {
         swapRouter = _swapRouter;
+    }
+
+    /// @notice Update the update fee to address
+    function updateFeeTo(address _feeTo) public onlyOwner {
+        feeTo = _feeTo;
+    }
+
+    function approve(address token, address to, uint256 amount) public onlyOwner {
+        IERC20(token).approve(to, amount);
+    }
+
+    /// @notice Pause the router execution
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /// @notice Unpause the router execution
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     function swapExactInputSingle(uint256 amountIn, address tokenIn, address tokenOut)
