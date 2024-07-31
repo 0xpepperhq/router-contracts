@@ -19,7 +19,11 @@ contract PepperSwapV1 is Ownable, ReentrancyGuard, Pausable {
         feeTo = _feeTo;
     }
 
-    function approve(address token, address to, uint256 amount) public onlyOwner {
+    function approve(
+        address token,
+        address to,
+        uint256 amount
+    ) public onlyOwner {
         IERC20(token).approve(to, amount);
     }
 
@@ -33,55 +37,74 @@ contract PepperSwapV1 is Ownable, ReentrancyGuard, Pausable {
         _unpause();
     }
 
-    function swapExactInputSingle(uint256 amountIn, address tokenIn, address tokenOut)
-        external
-        returns (uint256 amountOut)
-    {
+    function swapExactInputSingle(
+        uint256 amountIn,
+        address tokenIn,
+        address tokenOut
+    ) external returns (uint256 amountOut) {
         // msg.sender must approve this contract
 
         // Transfer the specified amount of tokenIn to this contract.
-        TransferHelper.safeTransferFrom(tokenIn, msg.sender, address(this), amountIn);
+        TransferHelper.safeTransferFrom(
+            tokenIn,
+            msg.sender,
+            address(this),
+            amountIn
+        );
 
         // Approve the router to spend tokenIn.
         TransferHelper.safeApprove(tokenIn, address(swapRouter), amountIn);
 
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
-            tokenIn: tokenIn,
-            tokenOut: tokenOut,
-            fee: poolFee,
-            recipient: msg.sender,
-            deadline: block.timestamp,
-            amountIn: amountIn,
-            // TODO - get the amountOutMinimum from an function argument
-            amountOutMinimum: 0,
-            sqrtPriceLimitX96: 0
-        });
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+            .ExactInputSingleParams({
+                tokenIn: tokenIn,
+                tokenOut: tokenOut,
+                fee: poolFee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                // TODO - get the amountOutMinimum from an function argument
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
 
         // The call to `exactInputSingle` executes the swap.
         amountOut = swapRouter.exactInputSingle(params);
     }
 
-    function swapExactOutputSingle(uint256 amountOut, uint256 amountInMaximum, address tokenIn, address tokenOut)
-        external
-        returns (uint256 amountIn)
-    {
+    function swapExactOutputSingle(
+        uint256 amountOut,
+        uint256 amountInMaximum,
+        address tokenIn,
+        address tokenOut
+    ) external returns (uint256 amountIn) {
         // Transfer the specified amount of DAI to this contract.
-        TransferHelper.safeTransferFrom(tokenIn, msg.sender, address(this), amountInMaximum);
+        TransferHelper.safeTransferFrom(
+            tokenIn,
+            msg.sender,
+            address(this),
+            amountInMaximum
+        );
 
         // Approve the router to spend the specifed `amountInMaximum` of tokenIn.
         // In production, you should choose the maximum amount to spend based on oracles or other data sources to acheive a better swap.
-        TransferHelper.safeApprove(tokenIn, address(swapRouter), amountInMaximum);
+        TransferHelper.safeApprove(
+            tokenIn,
+            address(swapRouter),
+            amountInMaximum
+        );
 
-        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter.ExactOutputSingleParams({
-            tokenIn: tokenIn,
-            tokenOut: tokenOut,
-            fee: poolFee,
-            recipient: msg.sender,
-            deadline: block.timestamp,
-            amountOut: amountOut,
-            amountInMaximum: amountInMaximum,
-            sqrtPriceLimitX96: 0
-        });
+        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
+            .ExactOutputSingleParams({
+                tokenIn: tokenIn,
+                tokenOut: tokenOut,
+                fee: poolFee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountOut: amountOut,
+                amountInMaximum: amountInMaximum,
+                sqrtPriceLimitX96: 0
+            });
 
         // Executes the swap returning the amountIn needed to spend to receive the desired amountOut.
         amountIn = swapRouter.exactOutputSingle(params);
@@ -90,57 +113,87 @@ contract PepperSwapV1 is Ownable, ReentrancyGuard, Pausable {
         // If the actual amount spent (amountIn) is less than the specified maximum amount, we must refund the msg.sender and approve the swapRouter to spend 0.
         if (amountIn < amountInMaximum) {
             TransferHelper.safeApprove(tokenIn, address(swapRouter), 0);
-            TransferHelper.safeTransfer(tokenIn, msg.sender, amountInMaximum - amountIn);
+            TransferHelper.safeTransfer(
+                tokenIn,
+                msg.sender,
+                amountInMaximum - amountIn
+            );
         }
     }
 
-    function swapExactInputMultihop(uint256 amountIn, address[] calldata path) external returns (uint256 amountOut) {
+    function swapExactInputMultihop(
+        uint256 amountIn,
+        address[] calldata path
+    ) external returns (uint256 amountOut) {
         require(path.length >= 2, "Path must have at least two tokens");
 
-        TransferHelper.safeTransferFrom(path[0], msg.sender, address(this), amountIn);
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            address(this),
+            amountIn
+        );
         TransferHelper.safeApprove(path[0], address(swapRouter), amountIn);
 
         bytes memory pathBytes = encodePath(path);
 
-        ISwapRouter.ExactInputParams memory params = ISwapRouter.ExactInputParams({
-            path: pathBytes,
-            recipient: msg.sender,
-            deadline: block.timestamp,
-            amountIn: amountIn,
-            amountOutMinimum: 0
-        });
+        ISwapRouter.ExactInputParams memory params = ISwapRouter
+            .ExactInputParams({
+                path: pathBytes,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: 0
+            });
 
         amountOut = swapRouter.exactInput(params);
     }
 
-    function swapExactOutputMultihop(uint256 amountOut, uint256 amountInMaximum, address[] calldata path)
-        external
-        returns (uint256 amountIn)
-    {
+    function swapExactOutputMultihop(
+        uint256 amountOut,
+        uint256 amountInMaximum,
+        address[] calldata path
+    ) external returns (uint256 amountIn) {
         require(path.length >= 2, "Path must have at least two tokens");
 
-        TransferHelper.safeTransferFrom(path[0], msg.sender, address(this), amountInMaximum);
-        TransferHelper.safeApprove(path[0], address(swapRouter), amountInMaximum);
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            address(this),
+            amountInMaximum
+        );
+        TransferHelper.safeApprove(
+            path[0],
+            address(swapRouter),
+            amountInMaximum
+        );
 
         bytes memory pathBytes = encodePath(reversePath(path));
 
-        ISwapRouter.ExactOutputParams memory params = ISwapRouter.ExactOutputParams({
-            path: pathBytes,
-            recipient: msg.sender,
-            deadline: block.timestamp,
-            amountOut: amountOut,
-            amountInMaximum: amountInMaximum
-        });
+        ISwapRouter.ExactOutputParams memory params = ISwapRouter
+            .ExactOutputParams({
+                path: pathBytes,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountOut: amountOut,
+                amountInMaximum: amountInMaximum
+            });
 
         amountIn = swapRouter.exactOutput(params);
 
         if (amountIn < amountInMaximum) {
             TransferHelper.safeApprove(path[0], address(swapRouter), 0);
-            TransferHelper.safeTransfer(path[0], msg.sender, amountInMaximum - amountIn);
+            TransferHelper.safeTransfer(
+                path[0],
+                msg.sender,
+                amountInMaximum - amountIn
+            );
         }
     }
 
-    function encodePath(address[] memory path) internal pure returns (bytes memory) {
+    function encodePath(
+        address[] memory path
+    ) internal pure returns (bytes memory) {
         bytes memory pathBytes;
         for (uint256 i = 0; i < path.length - 1; i++) {
             pathBytes = abi.encodePacked(pathBytes, path[i], uint24(poolFee));
@@ -149,7 +202,9 @@ contract PepperSwapV1 is Ownable, ReentrancyGuard, Pausable {
         return pathBytes;
     }
 
-    function reversePath(address[] memory path) internal pure returns (address[] memory) {
+    function reversePath(
+        address[] memory path
+    ) internal pure returns (address[] memory) {
         address[] memory reversed = new address[](path.length);
         for (uint256 i = 0; i < path.length; i++) {
             reversed[i] = path[path.length - 1 - i];
