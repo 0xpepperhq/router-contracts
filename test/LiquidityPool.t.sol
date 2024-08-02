@@ -21,40 +21,84 @@ contract LiquidityPoolTest is Test {
         token1 = new TestToken("Token1", "TK1");
         token2 = new TestToken("Token2", "TK2");
         rewardToken = new TestToken("RewardToken", "PEPR");
-        liquidityPool = new LiquidityPool(token1, token2, rewardToken, 1e10, 1e10, "TK1TK2", "1"); // 1 reward token per second per token
+        liquidityPool = new LiquidityPool(
+            token1,
+            token2,
+            rewardToken,
+            1e10,
+            1e10,
+            "TK1TK2",
+            "1"
+        ); // 1 reward token per second per token
 
-        token1.approve(address(liquidityPool), 1000000 * 10 ** token1.decimals());
-        token2.approve(address(liquidityPool), 1000000 * 10 ** token2.decimals());
-        rewardToken.approve(address(liquidityPool), 1000000 * 10 ** rewardToken.decimals());
+        token1.approve(
+            address(liquidityPool),
+            1000000 * 10 ** token1.decimals()
+        );
+        token2.approve(
+            address(liquidityPool),
+            1000000 * 10 ** token2.decimals()
+        );
+        rewardToken.approve(
+            address(liquidityPool),
+            1000000 * 10 ** rewardToken.decimals()
+        );
 
         // Fund the reward pool with reward tokens
-        rewardToken.transfer(address(liquidityPool), 10000 * 10 ** rewardToken.decimals());
+        rewardToken.transfer(
+            address(liquidityPool),
+            10000 * 10 ** rewardToken.decimals()
+        );
     }
 
     function testAddLiquidity() public {
         uint256 initialBalance1 = token1.balanceOf(address(liquidityPool));
         uint256 initialBalance2 = token2.balanceOf(address(liquidityPool));
 
-        liquidityPool.addLiquidity(1000 * 10 ** token1.decimals(), 1000 * 10 ** token2.decimals());
+        liquidityPool.addLiquidity(
+            1000 * 10 ** token1.decimals(),
+            1000 * 10 ** token2.decimals()
+        );
 
-        assertEq(token1.balanceOf(address(liquidityPool)), initialBalance1 + 1000 * 10 ** token1.decimals());
-        assertEq(token2.balanceOf(address(liquidityPool)), initialBalance2 + 1000 * 10 ** token2.decimals());
+        assertEq(
+            token1.balanceOf(address(liquidityPool)),
+            initialBalance1 + 1000 * 10 ** token1.decimals()
+        );
+        assertEq(
+            token2.balanceOf(address(liquidityPool)),
+            initialBalance2 + 1000 * 10 ** token2.decimals()
+        );
     }
 
     function testRemoveLiquidity() public {
-        liquidityPool.addLiquidity(1000 * 10 ** token1.decimals(), 1000 * 10 ** token2.decimals());
+        liquidityPool.addLiquidity(
+            1000 * 10 ** token1.decimals(),
+            1000 * 10 ** token2.decimals()
+        );
 
         uint256 initialBalance1 = token1.balanceOf(address(this));
         uint256 initialBalance2 = token2.balanceOf(address(this));
 
-        liquidityPool.removeLiquidity(500 * 10 ** token1.decimals(), 500 * 10 ** token2.decimals());
+        liquidityPool.removeLiquidity(
+            500 * 10 ** token1.decimals(),
+            500 * 10 ** token2.decimals()
+        );
 
-        assertEq(token1.balanceOf(address(this)), initialBalance1 + 500 * 10 ** token1.decimals());
-        assertEq(token2.balanceOf(address(this)), initialBalance2 + 500 * 10 ** token2.decimals());
+        assertEq(
+            token1.balanceOf(address(this)),
+            initialBalance1 + 500 * 10 ** token1.decimals()
+        );
+        assertEq(
+            token2.balanceOf(address(this)),
+            initialBalance2 + 500 * 10 ** token2.decimals()
+        );
     }
 
     function testSwap() public {
-        liquidityPool.addLiquidity(1000 * 10 ** token1.decimals(), 1000 * 10 ** token2.decimals());
+        liquidityPool.addLiquidity(
+            1000 * 10 ** token1.decimals(),
+            1000 * 10 ** token2.decimals()
+        );
 
         uint256 amountIn = 100 * 10 ** token1.decimals();
         uint256 initialBalance2 = token2.balanceOf(address(this));
@@ -67,7 +111,10 @@ contract LiquidityPoolTest is Test {
     }
 
     function testClaimReward() public {
-        liquidityPool.addLiquidity(1000 * 10 ** token1.decimals(), 1000 * 10 ** token2.decimals());
+        liquidityPool.addLiquidity(
+            1000 * 10 ** token1.decimals(),
+            1000 * 10 ** token2.decimals()
+        );
         // Simulate time passing
         vm.warp(block.timestamp + 1000); // Fast forward 1000 seconds
 
@@ -83,9 +130,15 @@ contract LiquidityPoolTest is Test {
 
     function testMultipleDepositsAndClaimRewards() public {
         // Add multiple deposits
-        liquidityPool.addLiquidity(500 * 10 ** token1.decimals(), 500 * 10 ** token2.decimals());
+        liquidityPool.addLiquidity(
+            500 * 10 ** token1.decimals(),
+            500 * 10 ** token2.decimals()
+        );
         vm.warp(block.timestamp + 500); // Fast forward 500 seconds
-        liquidityPool.addLiquidity(500 * 10 ** token1.decimals(), 500 * 10 ** token2.decimals());
+        liquidityPool.addLiquidity(
+            500 * 10 ** token1.decimals(),
+            500 * 10 ** token2.decimals()
+        );
 
         // Simulate more time passing
         vm.warp(block.timestamp + 500); // Fast forward another 500 seconds
