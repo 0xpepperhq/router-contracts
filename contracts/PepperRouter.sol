@@ -14,7 +14,15 @@ import {IWETH} from "./interfaces/IWETH.sol";
 import {IUniswapV2Pair} from "./interfaces/IUniswapV2Pair.sol";
 import {IUniswapV3Pool} from "./interfaces/IUniswapV3Pool.sol";
 import {InputStream} from "./InputStream.sol";
-import {RouteSegment} from "./RouteSegment.sol";
+
+struct RouteSegment {
+    uint8 providerCode;
+    bool direction;
+    address poolAddress;
+    address tokenIn;
+    address tokenOut;
+    uint24 fee;
+}
 
 address constant NATIVE_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 /// @dev The minimum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MIN_TICK)
@@ -22,7 +30,7 @@ uint160 constant MIN_SQRT_RATIO = 4295128739;
 /// @dev The maximum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MAX_TICK)
 uint160 constant MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342;
 
-contract PepperSwap is Ownable, ReentrancyGuard, Pausable {
+contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
     using SafeERC20 for IERC20Permit;
     using InputStream for uint256;

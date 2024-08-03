@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.0;
 
 interface IGaslessForwarderEvents {
     event GaslessRequestExecuted(
@@ -64,13 +64,18 @@ interface IGaslessForwarder is IGaslessForwarderEvents {
 
     function domainSeparatorV4() external view returns (bytes32);
 
-    function verify(GaslessRequestData calldata args) external view returns (bool);
+    function verify(
+        GaslessRequestData calldata args
+    ) external view returns (bool);
 
-    function execute(GaslessRequestData calldata args) external returns (uint256);
+    function execute(
+        GaslessRequestData calldata args
+    ) external returns (uint256);
 
-    function executeWithPermit(GaslessRequestData calldata args, PermitData calldata permit)
-        external
-        returns (uint256);
+    function executeWithPermit(
+        GaslessRequestData calldata args,
+        PermitData calldata permit
+    ) external returns (uint256);
 
     function setFeeRate(uint256 newRate) external;
 

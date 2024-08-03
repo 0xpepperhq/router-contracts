@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import {InputStream} from "../contracts/InputStream.sol";
-import {RouteSegment} from "../contracts/RouteSegment.sol";
+import {RouteSegment} from "../contracts/PepperRouter.sol";
 
 contract InputStreamTest is Test {
     using InputStream for uint256;
