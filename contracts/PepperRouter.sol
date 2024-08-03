@@ -80,6 +80,8 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
     /// @param amountIn Amount of the input token
     /// @param tokenOut Address of the output token
     /// @param amountOutMin Minimum amount of the output token
+    /// @param to Address to receive the output tokens
+    /// @param route Route segments
     /// @return amountOut Actual amount of the output token
     function processRoute(
         address tokenIn,
@@ -127,6 +129,8 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
     /// @param amountIn Amount of the input token
     /// @param tokenOut Address of the output token
     /// @param amountOutMin Minimum amount of the output token
+    /// @param to Address to receive the output tokens
+    /// @param route Route segments
     /// @return amountOut Actual amount of the output token
     function processRouteInternal(
         address tokenIn,
@@ -212,6 +216,9 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
         );
     }
 
+    /// @notice Converts the stream to the route segments
+    /// @param data Streamed program
+    /// @return segments Route segments
     function streamToRouteSegment(
         bytes memory data
     ) private pure returns (RouteSegment[] memory segments) {
@@ -234,6 +241,10 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
         return segments;
     }
 
+    /// @notice Transfers the asset from the caller to the contract
+    /// @param from Address to transfer the asset from
+    /// @param tokenIn Address of the input token
+    /// @param amountIn Amount of the input token
     function transferAssetFromCaller(
         address from,
         address tokenIn,
@@ -247,6 +258,10 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
         }
     }
 
+    /// @notice Transfers the asset from the contract to the caller
+    /// @param to Address to transfer the asset to
+    /// @param tokenOut Address of the output token
+    /// @param amountOut Amount of the output token
     function transferAssetToCaller(
         address to,
         address tokenOut,
@@ -269,6 +284,7 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
     /// @param fee Fee for the swap
     /// @param tokenIn Input token
     /// @param amountIn Amount of tokenIn to take for swap
+    /// @return amountOut Amount of the output token
     function swapUniswapV2(
         address pool,
         bool direction,
@@ -302,6 +318,7 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
     /// @param recipient Address to receive the output tokens
     /// @param tokenIn Input token
     /// @param amountIn Amount of tokenIn to take for swap
+    /// @return amountOut Amount of the output token
     function swapUniswapV3(
         address pool,
         bool direction,
@@ -327,6 +344,7 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
     /// @param direction Direction of wrapping (true for wrap, false for unwrap)
     /// @param to Address to receive the output tokens
     /// @param amountIn Amount of tokenIn to take for wrap/unwrap
+    /// @return amountOut Amount of the output token
     function wrapNative(
         address wrapToken,
         bool direction,
