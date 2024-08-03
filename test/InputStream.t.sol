@@ -8,7 +8,7 @@ import {RouteSegment} from "../contracts/PepperRouter.sol";
 contract InputStreamTest is Test {
     using InputStream for uint256;
 
-    function createData() public returns (RouteSegment[] memory segments) {
+    function createData() public pure returns (RouteSegment[] memory segments) {
         RouteSegment[] memory localSegments = new RouteSegment[](2);
         localSegments[0] = RouteSegment({
             providerCode: 1,
@@ -31,7 +31,7 @@ contract InputStreamTest is Test {
         return localSegments;
     }
 
-    function testReadStringFromApp() public {
+    function testReadStringFromApp() public pure {
         bytes
             memory data = hex"0201012f62f2b4c5fcd7570a709dec05d68ea19c82a9ec95ad61b0a150d79219dcf64e1e6cc01f0b64c4cec02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000bb80400c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeec02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000";
         uint256 stream = InputStream.createStream(data);
