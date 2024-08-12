@@ -153,7 +153,14 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
             uint256 amount = amountIn;
             for (uint256 index = 0; index < route.length; index++) {
                 RouteSegment memory segment = route[index];
-                if (segment.providerCode == 1) {
+                if (segment.providerCode == 0) {
+                    amount = wrapNative(
+                        segment.poolAddress,
+                        segment.direction,
+                        to,
+                        amount
+                    );
+                } else if (segment.providerCode == 1 || segment.providerCode == 4) {
                     amount = swapUniswapV3(
                         segment.poolAddress,
                         segment.direction,
@@ -170,13 +177,6 @@ contract PepperRouter is Ownable, ReentrancyGuard, Pausable {
                         to,
                         segment.fee,
                         segment.tokenIn,
-                        amount
-                    );
-                } else if (segment.providerCode == 4) {
-                    amount = wrapNative(
-                        segment.poolAddress,
-                        segment.direction,
-                        to,
                         amount
                     );
                 } else {
