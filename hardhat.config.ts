@@ -1,8 +1,16 @@
 import type { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
 
+const rpcUrl = process.env.RPC_URL ?? "";
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
+  networks: {
+    hardhat: {
+      forking: {
+        url: rpcUrl,
+      },
+    },
+  },
 };
 
 export default config;
