@@ -13,15 +13,26 @@ contract PepperRouter is Ownable {
 
     event PepperRouteProcessorUpdated(address indexed newProcessor);
 
+    error InvalidPepperRouteProcessorAddress(address processor);
+    error ETHAmountMisMatch(uint256 amount);
+    error InvalidETHAmount(uint256 amount);
+    error PepperRouteProcessorCallFailed(bytes returnData);
+    error InsufficientETHAmountToWithdraw(uint256 amount);
+    error ETHTransferToUserFailed(uint256 amount);
+
     constructor(address _pepperRouteProcessor) Ownable(msg.sender) {
-        require(_pepperRouteProcessor != address(0), "Invalid PepperRouteProcessor address");
+        if (_pepperRouteProcessor == address(0)) {
+            revert InvalidPepperRouteProcessorAddress(_pepperRouteProcessor);
+        }
         pepperRouteProcessor = _pepperRouteProcessor;
     }
 
     /// @notice Allows the owner to update the address of the PepperRouteProcessor contract
     /// @param _newProcessor The address of the new PepperRouteProcessor contract
     function updatePepperRouteProcessor(address _newProcessor) external onlyOwner {
-        require(_newProcessor != address(0), "Invalid PepperRouteProcessor address");
+        if (_newProcessor == address(0)) {
+            revert InvalidPepperRouteProcessorAddress(_newProcessor);
+        }
         pepperRouteProcessor = _newProcessor;
         emit PepperRouteProcessorUpdated(_newProcessor);
     }
@@ -43,7 +54,13 @@ contract PepperRouter is Ownable {
     ) external payable returns (uint256 amountOut) {
         if (tokenIn == address(0)) {
             // Handling native token (e.g., ETH)
-            require(msg.value == amountIn, "Incorrect ETH amount sent");
+            if (msg.value != amountIn) {
+                revert ETHAmountMisMatch(msg.value);
+            }
+
+            if (amountIn <= 0) {
+                revert InvalidETHAmount(amountIn);
+            }
             // Forward the call with the ETH amount
             (bool success, bytes memory returnData) = pepperRouteProcessor.call{value: msg.value}(
                 abi.encodeWithSignature(
@@ -56,7 +73,10 @@ contract PepperRouter is Ownable {
                     route
                 )
             );
-            require(success, "PepperRouteProcessor call failed");
+
+            if (!success) {
+                revert PepperRouteProcessorCallFailed(returnData);
+            }
             amountOut = abi.decode(returnData, (uint256));
         } else {
             // Handling ERC20 token
@@ -75,7 +95,9 @@ contract PepperRouter is Ownable {
                     route
                 )
             );
-            require(success, "PepperRouteProcessor call failed");
+            if (!success) {
+                revert PepperRouteProcessorCallFailed(returnData);
+            }
             amountOut = abi.decode(returnData, (uint256));
         }
     }
@@ -92,9 +114,13 @@ contract PepperRouter is Ownable {
     /// @param to Address to receive the withdrawn ETH
     /// @param amount Amount of ETH to withdraw
     function withdrawETH(address payable to, uint256 amount) external onlyOwner {
-        require(address(this).balance >= amount, "Insufficient ETH balance");
+        if (address(this).balance < amount) {
+            revert InsufficientETHAmountToWithdraw(amount);
+        }
         (bool success, ) = to.call{value: amount}("");
-        require(success, "ETH transfer failed");
+        if (!success) {
+            revert ETHTransferToUserFailed(amount);
+        }
     }
 
     receive() external payable {}
