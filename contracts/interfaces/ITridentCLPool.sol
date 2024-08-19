@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-interface IUniswapV3Pool {
+interface ITridentCLPool {
   function token0() external returns (address);
   function token1() external returns (address);
 
@@ -10,6 +10,7 @@ interface IUniswapV3Pool {
     bool zeroForOne,
     int256 amountSpecified,
     uint160 sqrtPriceLimitX96,
+    bool unwrapBento,
     bytes calldata data
   ) external returns (int256 amount0, int256 amount1);
 }

@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.20;
 
 interface IWETH {
-    function deposit() external payable;
+  function deposit() external payable;
 
-    function transfer(address to, uint256 value) external returns (bool);
+  function transfer(address to, uint256 value) external returns (bool);
 
-    function withdraw(uint256) external;
+  function withdraw(uint256) external;
 }
