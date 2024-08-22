@@ -11,3 +11,6 @@ viaIR = true
 [rpc_endpoints]
 sepolia = "https://alpha-fittest-energy.ethereum-sepolia.quiknode.pro/ad2fa26d4fdae56c65fded4c4b8eadc7bd06778b/"
 mainnet = "https://greatest-icy-rain.quiknode.pro/39f79e4968518a7d0519a3638f730848fc4663c2/"
+
+[etherscan]
+mainnet = { key = "1XAWBCQYA7MDDYWPE6DE6VB14JY2GE2FF6", url = "https://api.etherscan.io/api" }
