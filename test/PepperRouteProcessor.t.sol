@@ -4,12 +4,10 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "../contracts/PepperRouteProcessor.sol";
-import "../contracts/interfaces/IBentoBoxMinimal.sol";
 import "../contracts/interfaces/IWETH.sol";
 
 contract PepperRouteProcessorTest is Test {
     PepperRouteProcessor private processor;
-    IBentoBoxMinimal private bentoBox;
     IERC20 private token;
     IWETH private weth;
 
@@ -18,18 +16,18 @@ contract PepperRouteProcessorTest is Test {
     address private tokenIn = address(0x12345);
     address private tokenOut = address(0x54321);
     address private bentoBoxAddress = address(0x18945);
-    address private wethAddress = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    address private wethAddress =
+        address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
     function setUp() public {
-        bentoBox = IBentoBoxMinimal(bentoBoxAddress);
         token = IERC20(tokenIn);
         weth = IWETH(wethAddress);
-    
+
         address[] memory privilegedUsers = new address[](1);
         privilegedUsers[0] = user;
-    
-        processor = new PepperRouteProcessor(bentoBoxAddress, privilegedUsers);
-    
+
+        processor = new PepperRouteProcessor(privilegedUsers);
+
         // Setting up initial balances for tests
         vm.deal(user, 10 ether);
         deal(tokenIn, user, 1000 ether);
@@ -37,8 +35,10 @@ contract PepperRouteProcessorTest is Test {
     }
 
     function testInitialSetup() public {
-        assertEq(address(processor.bentoBox()), bentoBoxAddress, "BentoBox address mismatch");
-        assertTrue(processor.priviledgedUsers(user), "User should be privileged");
+        assertTrue(
+            processor.priviledgedUsers(user),
+            "User should be privileged"
+        );
     }
 
     // function testPauseAndResume() public {
@@ -54,10 +54,16 @@ contract PepperRouteProcessorTest is Test {
     function testSetPrivilege() public {
         address newPrivilegedUser = address(0x4567);
         processor.setPriviledge(newPrivilegedUser, true);
-        assertTrue(processor.priviledgedUsers(newPrivilegedUser), "New user should be privileged");
+        assertTrue(
+            processor.priviledgedUsers(newPrivilegedUser),
+            "New user should be privileged"
+        );
 
         processor.setPriviledge(newPrivilegedUser, false);
-        assertTrue(!processor.priviledgedUsers(newPrivilegedUser), "New user should not be privileged anymore");
+        assertTrue(
+            !processor.priviledgedUsers(newPrivilegedUser),
+            "New user should not be privileged anymore"
+        );
     }
 
     function testProcessRoute() public {
@@ -69,7 +75,14 @@ contract PepperRouteProcessorTest is Test {
         token.approve(address(processor), 1000 ether);
 
         // Process route
-        uint256 amountOut = processor.processRoute(tokenIn, 1000 ether, tokenOut, 900 ether, user, route);
+        uint256 amountOut = processor.processRoute(
+            tokenIn,
+            1000 ether,
+            tokenOut,
+            900 ether,
+            user,
+            route
+        );
 
         // Add assertions for amountOut based on your expectations
         assertEq(amountOut, 900 ether, "Incorrect amount out");
@@ -103,10 +116,18 @@ contract PepperRouteProcessorTest is Test {
 
         // Check recipient's balance
         uint256 recipientBalance = IERC20(tokenOut).balanceOf(recipient);
-        assertEq(recipientBalance, 100 ether, "Incorrect transfer amount to recipient");
+        assertEq(
+            recipientBalance,
+            100 ether,
+            "Incorrect transfer amount to recipient"
+        );
 
         uint256 userBalance = IERC20(tokenOut).balanceOf(user);
-        assertEq(userBalance, 800 ether, "Incorrect tokenOut balance for user after transfer");
+        assertEq(
+            userBalance,
+            800 ether,
+            "Incorrect tokenOut balance for user after transfer"
+        );
 
         vm.stopPrank();
     }
@@ -134,7 +155,11 @@ contract PepperRouteProcessorTest is Test {
 
         // Check recipient's balance of input token
         uint256 recipientBalance = IERC20(tokenIn).balanceOf(recipient);
-        assertEq(recipientBalance, 100 ether, "Incorrect input transfer amount to recipient");
+        assertEq(
+            recipientBalance,
+            100 ether,
+            "Incorrect input transfer amount to recipient"
+        );
 
         uint256 userBalance = IERC20(tokenOut).balanceOf(user);
         assertEq(userBalance, 900 ether, "Incorrect tokenOut balance for user");
@@ -165,10 +190,18 @@ contract PepperRouteProcessorTest is Test {
 
         // Check recipient's native balance
         uint256 recipientBalance = recipient.balance;
-        assertEq(recipientBalance, 1 ether, "Incorrect native value transfer to recipient");
+        assertEq(
+            recipientBalance,
+            1 ether,
+            "Incorrect native value transfer to recipient"
+        );
 
         uint256 userBalance = IERC20(tokenOut).balanceOf(user);
-        assertEq(userBalance, 900 ether, "Incorrect tokenOut balance for user after route processing");
+        assertEq(
+            userBalance,
+            900 ether,
+            "Incorrect tokenOut balance for user after route processing"
+        );
 
         vm.stopPrank();
     }
@@ -179,10 +212,21 @@ contract PepperRouteProcessorTest is Test {
 
         // Transfer some ETH to processor contract
         vm.prank(user);
-        uint256 amountOut = processor.processRoute{value: 1 ether}(address(0), 1 ether, wethAddress, 0.9 ether, user, route);
+        uint256 amountOut = processor.processRoute{value: 1 ether}(
+            address(0),
+            1 ether,
+            wethAddress,
+            0.9 ether,
+            user,
+            route
+        );
 
         // Check if WETH was correctly received
         uint256 userWETHBalance = IERC20(wethAddress).balanceOf(user);
-        assertEq(userWETHBalance, 0.9 ether, "Incorrect WETH balance after processing native route");
+        assertEq(
+            userWETHBalance,
+            0.9 ether,
+            "Incorrect WETH balance after processing native route"
+        );
     }
 }
