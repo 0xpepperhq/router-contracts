@@ -33,6 +33,8 @@ contract PepperRouteProcessor is Ownable {
     using SafeERC20 for IERC20Permit;
     using InputStream for uint256;
 
+    uint256 public callCounter = 0;
+
     event Route(
         address indexed from,
         address to,
@@ -66,7 +68,7 @@ contract PepperRouteProcessor is Ownable {
         _;
     }
 
-    constructor(address[] memory priviledgedUserList) Ownable(_msgSender()) {
+    constructor(address initialOwner, address[] memory priviledgedUserList) Ownable(initialOwner) {
         lastCalledPool = IMPOSSIBLE_POOL_ADDRESS;
 
         for (uint256 i = 0; i < priviledgedUserList.length; i++) {
@@ -220,6 +222,7 @@ contract PepperRouteProcessor is Ownable {
         address to,
         bytes memory route
     ) private returns (uint256 amountOut) {
+        callCounter += 1;
         uint256 balanceInInitial = tokenIn.anyBalanceOf(msg.sender);
         uint256 balanceOutInitial = tokenOut.anyBalanceOf(to);
 

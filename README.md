@@ -68,5 +68,5 @@ $ cast --help
 ### Deplyment Example
 
 ```shell
-$ forge script script/PepperSwapV1.s.sol --account pepper-account --sender 0x458ad17062827656e595144797Ac0bf462F133a1 --broadcast
+$ forge script script/PepperSwapV1.s.sol --account pepper-deployer --sender 0x458ad17062827656e595144797Ac0bf462F133a1 --broadcast
 ```
