@@ -9,7 +9,7 @@ contract DeployPepperRouteProcessor is Script {
     // forge script script/DeployPepperRouteProcessor.s.sol:DeployPepperRouteProcessor --broadcast --account pepper-deployer --sender 0xa90EA397380DA7f790E4062f5BF4aF470b9099AC
 
     function run() external {
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("base");
 
         vm.startBroadcast();
 

@@ -25,7 +25,7 @@ Record of Router deployments address.
 # Verify contracts
 
 ```bash
-forge verify-contract 0xA24d75601C9b69a604A4669509CFaeeF68a1dd5B ./contracts/PepperRouteProcessor.sol:PepperRouteProcessor \
+forge verify-contract --chain-id 8453 0xA24d75601C9b69a604A4669509CFaeeF68a1dd5B ./contracts/PepperRouteProcessor.sol:PepperRouteProcessor \
 --constructor-args $(cast abi-encode "constructor(address,address[])" 0xa90EA397380DA7f790E4062f5BF4aF470b9099AC '[0xA1D2fc16b435F91295420D40d6a98bB1302080D9, 0x6F6623B00B0b2eAEFA47A4fDE06d6931F7121722]') \
 --watch
 ```
