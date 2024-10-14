@@ -68,7 +68,10 @@ contract PepperRouteProcessor is Ownable {
         _;
     }
 
-    constructor(address initialOwner, address[] memory priviledgedUserList) Ownable(initialOwner) {
+    constructor(
+        address initialOwner,
+        address[] memory priviledgedUserList
+    ) Ownable(initialOwner) {
         lastCalledPool = IMPOSSIBLE_POOL_ADDRESS;
 
         for (uint256 i = 0; i < priviledgedUserList.length; i++) {

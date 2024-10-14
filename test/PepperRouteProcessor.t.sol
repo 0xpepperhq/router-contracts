@@ -26,7 +26,7 @@ contract PepperRouteProcessorTest is Test {
         address[] memory privilegedUsers = new address[](1);
         privilegedUsers[0] = user;
 
-        processor = new PepperRouteProcessor(privilegedUsers);
+        processor = new PepperRouteProcessor(owner, privilegedUsers);
 
         // Setting up initial balances for tests
         vm.deal(user, 10 ether);
