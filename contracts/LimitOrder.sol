@@ -81,11 +81,9 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         _;
     }
 
-    /**
-     * @notice Initializes the contract with the given owner and route processor address.
-     * @param initialOwner The address of the initial owner of the contract.
-     * @param routeProcessorAddress The address of the PepperRouteProcessor contract.
-     */
+    /// @notice Initializes the contract with the given owner and route processor address.
+    /// @param initialOwner The address of the initial owner of the contract.
+    /// @param routeProcessorAddress The address of the PepperRouteProcessor contract.
     constructor(
         address initialOwner,
         address payable routeProcessorAddress
@@ -94,11 +92,9 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         routeProcessor = PepperRouteProcessor(routeProcessorAddress);
     }
 
-    /**
-     * @notice Create a new limit order.
-     * @param order The order to be created.
-     * @return orderId The ID of the newly created order.
-     */
+    /// @notice Create a new limit order.
+    /// @param order The order to be created.
+    /// @return orderId The ID of the newly created order.
     function createOrder(
         OrderSimple memory order
     ) external nonReentrant returns (uint256) {
@@ -167,11 +163,9 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         nextOrderId++;
     }
 
-    /**
-     * @notice Executes an order.
-     * @param orderId The ID of the order to be executed.
-     * @param routeData The data required by the route processor to execute the swap.
-     */
+    /// @notice Executes an order.
+    /// @param orderId The ID of the order to be executed.
+    /// @param routeData The data required by the route processor to execute the swap.
     function executeOrder(
         uint256 orderId,
         bytes memory routeData
@@ -229,10 +223,8 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         emit OrderExecuted(orderId);
     }
 
-    /**
-     * @notice Cancels a limit order.
-     * @param orderId The unique identifier for the limit order to be canceled.
-     */
+    /// @notice Cancels a limit order.
+    /// @param orderId The unique identifier for the limit order to be canceled.
     function cancelOrder(
         uint256 orderId
     ) external onlyOrderOwner(orderId) nonReentrant {
@@ -250,11 +242,9 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         emit OrderCancelled(orderId);
     }
 
-    /**
-     * @notice Allows a user to take an order.
-     * @param orderId The unique identifier for the limit order to be processed.
-     * @param amount The amount of the order to take.
-     */
+    /// @notice Allows a user to take an order.
+    /// @param orderId The unique identifier for the limit order to be processed.
+    /// @param amount The amount of the order to take.
     function takeOrder(uint256 orderId, uint256 amount) external nonReentrant {
         require(orderId < nextOrderId, "Invalid order ID");
         Order storage order = orders[orderId];
@@ -328,15 +318,13 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         );
     }
 
-    /**
-     * @notice Calculates the proportional minimum amount out, adjusting for token decimals.
-     * @param amountIn The amount of tokenIn the taker wants to take.
-     * @param orderAmountIn The total amountIn of the order.
-     * @param orderMinimumAmountOut The minimum amountOut of the order.
-     * @param tokenInDecimals The decimals of tokenIn.
-     * @param tokenOutDecimals The decimals of tokenOut.
-     * @return The proportional minimum amount out, adjusted for decimals.
-     */
+    /// @notice Calculates the proportional minimum amount out, adjusting for token decimals.
+    /// @param amountIn The amount of tokenIn the taker wants to take.
+    /// @param orderAmountIn The total amountIn of the order.
+    /// @param orderMinimumAmountOut The minimum amountOut of the order.
+    /// @param tokenInDecimals The decimals of tokenIn.
+    /// @param tokenOutDecimals The decimals of tokenOut.
+    /// @return The proportional minimum amount out, adjusted for decimals.
     function calculateProportionalAmountOut(
         uint256 amountIn,
         uint256 orderAmountIn,
@@ -375,13 +363,11 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         return proportionalAmountOut;
     }
 
-    /**
-     * @notice Adjusts the amount between tokens with different decimals.
-     * @param amount The amount to adjust.
-     * @param fromDecimals The decimals of the token the amount is in.
-     * @param toDecimals The decimals of the token to adjust to.
-     * @return The adjusted amount.
-     */
+    /// @notice Adjusts the amount between tokens with different decimals.
+    /// @param amount The amount to adjust.
+    /// @param fromDecimals The decimals of the token the amount is in.
+    /// @param toDecimals The decimals of the token to adjust to.
+    /// @return The adjusted amount.
     function adjustDecimals(
         uint256 amount,
         uint8 fromDecimals,
@@ -398,10 +384,8 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         }
     }
 
-    /**
-     * @notice Returns all open orders.
-     * @return openOrders An array of open orders.
-     */
+    /// @notice Returns all open orders.
+    /// @return openOrders An array of open orders.
     function getOpenOrders() external view returns (Order[] memory) {
         Order[] memory openOrders = new Order[](openOrderIds.length);
         for (uint256 i = 0; i < openOrderIds.length; i++) {
@@ -411,10 +395,8 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         return openOrders;
     }
 
-    /**
-     * @notice Removes an order ID from the list of open orders.
-     * @param orderId The order ID to remove from the open order list.
-     */
+    /// @notice Removes an order ID from the list of open orders.
+    /// @param orderId The order ID to remove from the open order list.
     function removeOpenOrderId(uint256 orderId) internal {
         uint256 index = orderIdToIndex[orderId];
         uint256 lastOrderId = openOrderIds[openOrderIds.length - 1];
@@ -424,11 +406,9 @@ contract LimitOrder is Ownable, ReentrancyGuard {
         delete orderIdToIndex[orderId];
     }
 
-    /**
-     * @notice Calculates the fee based on the provided amount.
-     * @param amount The amount to calculate the fee from.
-     * @return The calculated fee.
-     */
+    /// @notice Calculates the fee based on the provided amount.
+    /// @param amount The amount to calculate the fee from.
+    /// @return The calculated fee.
     function calculateFee(uint256 amount) internal pure returns (uint256) {
         return (amount * FEE_BASIS_POINTS) / 10_000;
     }
